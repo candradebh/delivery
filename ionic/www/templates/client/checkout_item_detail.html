@@ -1,0 +1,34 @@
+<ion-view>
+    <ion-nav-title>
+       Delivery - Produto: {{product.name}}
+    </ion-nav-title>
+    <div class="bar bar-subheader">
+        <h2 class="title">Detalhe do produto</h2>
+        <button class="button button-clear button-ion ion-minus-circled" ng-click="showDelete=!showDelete">
+
+        </button>
+    </div>
+    <ion-content class="padding has-subheader">
+
+        <div class="list card">
+            <div class="item item-avatar">
+                <h2>{{product.name}}</h2>
+                <p>
+                    {{product.qtd}} <br/>
+                    <i class="ion ion-cash">{{o.price}}</i>
+                </p>
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Quantidade</span>
+                <input type="text" placeholder="Forneça a quantidade" ng-model="product.qtd" />
+            </label>
+            <button type="button" class="button button-assertive button-full" ng-click="updateQtd()">
+            Alterar Quantidade </button>
+
+            <div class="item item-body">
+                <h2>Descrição</h2>
+                <p>{{product.description}}</p>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
