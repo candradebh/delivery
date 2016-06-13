@@ -13,19 +13,26 @@ angular.module('starter.controllers')
                             var promise = OAuth.getAccessToken($scope.user);
                             promise
                                 .then(function (data) {
-                                    return User.authenticated({include: 'client'}).$promise;
-                                }
-                                ).then(function (data) {
-                                        UserData.set(data);
 
+                                    var token = $localStorage.get();
+                                    return User.updateDeviceToken({},{device_token:token}).$promise;
+
+                                }).then(function (data) {
+                                        return User.authenticated({include: 'client'}).$promise;
+
+                                }).then(
+                                    function (data) {
+
+                                        UserData.set(data);
                                         if(data.data.role=='client'){
                                             $state.go('client.checkout');
                                         }else{
                                             $state.go('deliveryman.order');
                                         }
 
-                                        },
-                                        function (responseError) {
+                                    },
+
+                                    function (responseError) {
                                             UserData.set(null);
                                             OAuthToken.removeToken();
 
@@ -34,12 +41,10 @@ angular.module('starter.controllers')
                                                 template: 'Login e/ou Senha inválidos'
                                             });
                                             console.debug(responseError);
-                                        }
+                                    }
                                 );
 
                         }
-
-
                 }
             ]
     );

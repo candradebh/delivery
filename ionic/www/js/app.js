@@ -42,7 +42,7 @@ angular.module('starter', [
       });
 
       push.register(function(token){
-          console.log(token);
+         $localStorage.set('device_token',token.token);
       });
 
   });
