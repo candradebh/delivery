@@ -1,7 +1,7 @@
 angular.module('starter.controllers')
     .controller('LoginCtrl',
-            ['$scope','OAuth','$ionicPopup','$state','UserData','User',
-                function($scope,OAuth,$ionicPopup,$state,UserData,User){
+            ['$scope','OAuth','$ionicPopup','$state','UserData','User','$localStorage','$redirect',
+                function($scope,OAuth,$ionicPopup,$state,UserData,User,$localStorage,$redirect){
 
                         $scope.user = {
                             username: '',
@@ -14,7 +14,7 @@ angular.module('starter.controllers')
                             promise
                                 .then(function (data) {
 
-                                    var token = $localStorage.get();
+                                    var token = $localStorage.get('token');
                                     return User.updateDeviceToken({},{device_token:token}).$promise;
 
                                 }).then(function (data) {
@@ -23,13 +23,9 @@ angular.module('starter.controllers')
                                 }).then(
                                     function (data) {
 
-                                        UserData.set(data);
-                                        if(data.data.role=='client'){
-                                            $state.go('client.checkout');
-                                        }else{
-                                            $state.go('deliveryman.order');
-                                        }
+                                        UserData.set(data.data);
 
+                                        $redirect.redirectAfterLogin();
                                     },
 
                                     function (responseError) {
@@ -44,7 +40,7 @@ angular.module('starter.controllers')
                                     }
                                 );
 
-                        }
+                        };
                 }
             ]
     );

@@ -16,7 +16,7 @@
     <!-- INICIO DO CONTEUDO DO MENU ESQUERDO-->
     <ion-side-menu side="left">
         <ion-header-bar class="bar-stable">
-            <h1 class="title">Olá {{user.data.name}}</h1>
+            <h1 class="title">Olá {{user.name}}</h1>
         </ion-header-bar>
 
         <ion-content>
@@ -32,7 +32,7 @@
         <ion-footer-bar class="bar-stable">
             <h1 class="title">Rodape</h1>
             <div class="buttons">
-                <button class="button button-icon ion-log-out"></button>
+                <button class="button button-icon ion-log-out" ng-click="logout()"></button>
             </div>
         </ion-footer-bar>
     </ion-side-menu>

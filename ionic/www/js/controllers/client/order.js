@@ -3,6 +3,7 @@ angular.module('starter.controllers')
         '$scope','$state','$ionicLoading','$ionicActionSheet','ClientOrder',
             function($scope,$state,$ionicLoading,$ionicActionSheet,ClientOrder){
 
+                //var page = 1;
                 var items = [];
 
 
@@ -50,9 +51,18 @@ angular.module('starter.controllers')
                     })
                 };
 
+               /* $scope.loadMore = function () {
+                        getOrders().then(function (data) {
+                           $scope.items = $scope.items.concat(data.data);
+                            page +=1;
+                            $scope.$broadcast('scroll.infiniteScrollComplete');
+                        });
+                };
+*/
                 function getOrders() {
                     return ClientOrder.query({
                         id: null,
+                        //page:page,
                         orderBy: 'created_at',
                         sortedBy: 'desc'
 

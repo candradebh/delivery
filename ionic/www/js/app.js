@@ -6,17 +6,22 @@
 angular.module('starter.controllers',[]); //inicia todos os controlers
 angular.module('starter.services',[]); //inicia todos os serviços
 angular.module('starter.filters',[]);//inicia todos os filtros
-
+angular.module('starter.run',[]);
 
 angular.module('starter', [
-    'ionic','ionic.service.core', 'starter.controllers', 'starter.services','starter.filters',
-    'angular-oauth2','ngResource','ngCordova', 'uiGmapgoogle-maps', 'pusher-angular'
+    'ionic','ionic.service.core', 'starter.controllers', 'starter.services','starter.filters','starter.run',
+    'angular-oauth2','ngResource','ngCordova', 'uiGmapgoogle-maps', 'pusher-angular','permission',
+    'http-auth-interceptor'
 ])
 
 
     .constant('appConfig', {
-        baseUrl: 'http://localhost:8000', //localhost:8000
-        pusherKey: 'c87b614d28fdfca69ce9'
+        baseUrl: 'http://netbin.com.br', //http://localhost:8000
+        pusherKey: 'c87b614d28fdfca69ce9',
+        redirectAfterLogin:{
+            client:'client.order',
+            deliveryman:'deliveryman.order'
+        }
     })
 
 .run(function($ionicPlatform, $window, appConfig) {
@@ -49,30 +54,32 @@ angular.module('starter', [
 })
 
 //configuração das rotas
-.config(function($stateProvider, $urlRouterProvider, OAuthProvider, OAuthTokenProvider, appConfig,$provide){
+.config(function($stateProvider, $urlRouterProvider, OAuthProvider, OAuthTokenProvider, appConfig,$provide) {
 
-        OAuthProvider.configure({
-            baseUrl: appConfig.baseUrl,
-            clientId: 'appid01',
-            clientSecret: 'secret', // optional
-            grantPath: '/oauth/access_token'
-        });
+    OAuthProvider.configure({
+        baseUrl: appConfig.baseUrl,
+        clientId: 'appid01',
+        clientSecret: 'secret', // optional
+        grantPath: '/oauth/access_token'
+    });
 
-        OAuthTokenProvider.configure({
-            name: 'token',
-            options: {
-                //tempo de vida do cookie, etc
-                secure: false
-            }
-        });
+    OAuthTokenProvider.configure({
+        name: 'token',
+        options: {
+            //tempo de vida do cookie, etc
+            secure: false
+        }
+    });
 
-
-      $stateProvider
-
-          .state('login',{
+    $stateProvider.state('login',{
+              cache:false,
               url: '/login',
               templateUrl: 'templates/login.html',
               controller: 'LoginCtrl'
+          })
+          .state('logout',{
+              url:'/logout',
+              controller: 'LogoutCtrl'
           })
           .state('menu',{
               url: '/menu',
@@ -81,13 +88,17 @@ angular.module('starter', [
 
               }
           })
-
           .state('client',{
               abstract: true,
               cache: false,
               url: '/client',
               templateUrl: 'templates/client/menu.html',
-              controller: 'ClientMenuCtrl'
+              controller: 'ClientMenuCtrl',
+              data:{
+                  permissions:{
+                      only:['client-role']
+                  }
+              }
           })
           .state('client.order',{
               url:'/order',
@@ -132,7 +143,12 @@ angular.module('starter', [
               cache: false,
               url: '/deliveryman',
               templateUrl: 'templates/deliveryman/menu.html',
-              controller: 'DeliverymanMenuCtrl'
+              controller: 'DeliverymanMenuCtrl',
+              data:{
+                  permissions:{
+                      only:['deliveryman-role']
+                  }
+              }
           })
           .state('deliveryman.order',{
               url:'/order',
@@ -148,40 +164,47 @@ angular.module('starter', [
 
 
 
-      //redireciona sempre para raiz do sistema para nao aceitar url que nao existe
-      $urlRouterProvider.otherwise('/login');
+          //redireciona sempre para raiz do sistema para nao aceitar url que nao existe
+          $urlRouterProvider.otherwise('/login');
 
-      //configura o Oauth2 do angular para nao trabalhar com cookies pois o android 4 e superior nao permite
-      $provide.decorator('OAuthToken',['$localStorage','$delegate', function($localStorage,$delegate){
+          //configura o Oauth2 do angular para nao trabalhar com cookies pois o android 4 e superior nao permite
+          $provide.decorator('OAuthToken',['$localStorage','$delegate', function($localStorage,$delegate){
 
-        Object.defineProperties($delegate,{
-            setToken:{
-                value:function(data){
-                    $localStorage.setObject('token',data);
-                },
-                enumerable:true,
-                configurable:true,
-                writable:true
-            },
-            getToken:{
-                value:function(){
-                    return $localStorage.getObject('token');
-                },
-                enumerable:true,
-                configurable:true,
-                writable:true
-            },
-            removeToken:{
-                value:function(){
-                    return $localStorage.getObject('token',null);
-                },
-                enumerable:true,
-                configurable:true,
-                writable:true
-            }
-        });
-        return $delegate;
-      }]);
+                Object.defineProperties($delegate,{
+                    setToken:{
+                        value:function(data){
+                            $localStorage.setObject('token',data);
+                        },
+                        enumerable:true,
+                        configurable:true,
+                        writable:true
+                    },
+                    getToken:{
+                        value:function(){
+                            return $localStorage.getObject('token');
+                        },
+                        enumerable:true,
+                        configurable:true,
+                        writable:true
+                    },
+                    removeToken:{
+                        value:function(){
+                            return $localStorage.getObject('token',null);
+                        },
+                        enumerable:true,
+                        configurable:true,
+                        writable:true
+                    }
+                });
+            return $delegate;
+          }]);
+
+          $provide.decorator('oauthInterceptor',['$delegate', function($delegate){
+
+                delete $delegate['responseError'];
+
+                return $delegate;
+          }]);
 
     })
     .service('cart',function(){

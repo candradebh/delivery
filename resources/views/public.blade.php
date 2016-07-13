@@ -7,6 +7,9 @@
 <div class="container">
 
     @yield('content-public')
+
+
+
     <hr>
 
     <footer>
