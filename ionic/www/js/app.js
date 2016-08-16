@@ -16,7 +16,7 @@ angular.module('starter', [
 
 
     .constant('appConfig', {
-        baseUrl: 'http://netbin.com.br', //http://localhost:8000
+        baseUrl: 'http://localhost:8000', //http://localhost:8000
         pusherKey: 'c87b614d28fdfca69ce9',
         redirectAfterLogin:{
             client:'client.order',

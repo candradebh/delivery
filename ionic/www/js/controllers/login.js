@@ -1,46 +1,38 @@
 angular.module('starter.controllers')
-    .controller('LoginCtrl',
-            ['$scope','OAuth','$ionicPopup','$state','UserData','User','$localStorage','$redirect',
-                function($scope,OAuth,$ionicPopup,$state,UserData,User,$localStorage,$redirect){
+    .controller('LoginCtrl',['$scope', '$auth' ,'$cordovaTouchID',
+        function($scope, $auth,$cordovaTouchID){
 
-                        $scope.user = {
-                            username: '',
-                            password:''
-                        };
+           $scope.user = {
+                   username: '',
+                   password:''
+           };
 
+            $scope.isSupportTouchID=false;
 
-                        $scope.login = function () {
-                            var promise = OAuth.getAccessToken($scope.user);
-                            promise
-                                .then(function (data) {
+            $scope.login = function () {
+                  $auth.login($scope.user.username,$scope.user.password)
 
-                                    var token = $localStorage.get('token');
-                                    return User.updateDeviceToken({},{device_token:token}).$promise;
+            };
 
-                                }).then(function (data) {
-                                        return User.authenticated({include: 'client'}).$promise;
+            $scope.loginWithTouchID = function () {
+                if($scope.isSupportTouchID){
+                    $cordovaTouchID.authenticate("Passe o dedo para autenticar").then(function() {
 
-                                }).then(
-                                    function (data) {
+                        $auth.login($scope.user.username, $scope.user.password);
 
-                                        UserData.set(data.data);
-
-                                        $redirect.redirectAfterLogin();
-                                    },
-
-                                    function (responseError) {
-                                            UserData.set(null);
-                                            OAuthToken.removeToken();
-
-                                            $ionicPopup.alert({
-                                                title: 'Advertência',
-                                                template: 'Login e/ou Senha inválidos'
-                                            });
-                                            console.debug(responseError);
-                                    }
-                                );
-
-                        };
+                    }, function () {
+                        // error
+                    });
                 }
-            ]
-    );
+            };
+
+            if(ionic.Platform.isWebView() && ionic.Platform.isIOS() && ionic.Platform.isIPad() ){
+
+                $cordovaTouchID.checkSupport().then(function() {
+
+                    $scope.isSupportTouchID=true;
+                });
+            }
+
+
+    }]);
